@@ -131,8 +131,22 @@ size_t game(size_t round, size_t left_base, size_t right_base)
     return score;
 }
 
+// -----------------------------
+// ▘|▝|▀|▖|▌|▞|▛|▗|▚|▐|▜|▄|▙|▟|█
+// -----------------------------
+
+static const char* header = GP_MAGENTA
+"▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
+"█  █ █▀▀▀ ▜▖  ▗▛   ▟▛▀▀▜▙ ▟▛▀▜▙ ▙      ▟ █▀▀▀\n"
+"█  █ █     ▜▖▗▛    █      █   █ █▙    ▟█ █   \n"
+"█▀▀█ █▀▀▀   ██     █ ▟▀▜▙ █▀▀▀█ █▝▙  ▟▘█ █▀▀▀\n"
+"█  █ █     ▟▘▝▙    █    █ █   █ █ ▝▙▟▘ █ █   \n"
+"█  █ █▄▄▄ ▟▘  ▝▙   ▜▙▄▄▄▛ █   █ █  ▝▘  █ █▄▄▄\n"
+"▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄" GP_RESET_TERMINAL "\n";
+
 int main(void)
 {
+    puts(header);
     for (size_t round = 0, left_base = BASE2; left_base < BASE_LENGTH; ++left_base)
     {
         for (size_t right_base = BASE2; right_base < BASE_LENGTH; ++right_base, ++round)
