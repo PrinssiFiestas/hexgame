@@ -1,4 +1,5 @@
 #include <gpc/gpc.h>
+#include <unistd.h>
 
 typedef enum base
 {
@@ -8,7 +9,8 @@ typedef enum base
     BASE_LENGTH
 } Base;
 
-#define RESET true
+#define TIME_RESET true
+#define TIME_NOW   false
 
 static const char* base_strings[BASE_LENGTH] = {
     [BASE2]  = "binary",
@@ -69,15 +71,25 @@ size_t game(size_t round, size_t left_base, size_t right_base)
 
     gp_println(
         "Round", round, ": Convert", base_strings[left_base], "to", base_strings[right_base]);
+    gp_println("Get ready...");
 
-    // TODO countdown
+    for (size_t countdown = 5; countdown != 0; --countdown) {
+        gp_print(countdown, "\r");
+        fflush(stdout);
+        game_time(TIME_RESET);
+        while (game_time(TIME_NOW) < 1.)
+            usleep(10);
+    }
 
+    uint32_t last_left = -1;
     size_t score = 0;
-    game_time(RESET);
-    while (game_time(0) < 60.)
+    game_time(TIME_RESET);
+    while (game_time(TIME_NOW) < 30.)
     {
-        uint32_t left = gp_random(&rs) & 0xF;
         uint32_t right;
+        uint32_t left; do {
+            left = gp_random(&rs) & 0xF;
+        } while (left == last_left);
 
         try_again:
         switch (left_base) {
@@ -86,20 +98,25 @@ size_t game(size_t round, size_t left_base, size_t right_base)
         case BASE16: printf("%4x: ", left);                break;
         default: __builtin_unreachable();
         }
+        gp_print("\n", GP_CURSOR_UP(1) GP_CURSOR_FORWARD(6)); // empty line to avoid scroll on WRONG
         fflush(stdout);
 
+        int scanf_result;
         char right_base2_buf[8] = "";
         switch (right_base) {
         case BASE2:
-            scanf("%4s", right_base2_buf);
+            scanf_result = scanf("%4s", right_base2_buf);
             right = atou32_binary(right_base2_buf);
             break;
 
-        case BASE10: scanf("%u", &right); break;
-        case BASE16: scanf("%x", &right); break;
+        case BASE10: scanf_result = scanf("%u", &right); break;
+        case BASE16: scanf_result = scanf("%x", &right); break;
         default: __builtin_unreachable();
         }
-
+        if (scanf_result == EOF) {
+            puts("");
+            exit(EXIT_SUCCESS);
+        }
         while (getchar() != '\n')
             ;
 
@@ -108,8 +125,9 @@ size_t game(size_t round, size_t left_base, size_t right_base)
             goto try_again;
         }
         ++score;
+        gp_println(GP_GREEN "Correct!" GP_RESET_TERMINAL " Score:", score);
     }
-    gp_println("Round", round, "score:", score);
+    gp_println("Round", round, "score:", score, "\n");
     return score;
 }
 
