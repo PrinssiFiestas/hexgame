@@ -20,22 +20,29 @@ else
 SANITIZERS = -fsanitize=address -fsanitize=undefined -fsanitize=leak
 endif
 
+MSYS_VERSION = $(if $(findstring Msys, $(shell uname -o)),$(word 1, $(subst ., ,$(shell uname -r))),0)
+ifeq ($(MSYS_VERSION), 0)
+INSTALL_PATH = /usr/local/bin/
+else
+INSTALL_PATH = /bin/
+endif
+
 all: hexgame$(EXE_EXT)
 ./hexgame$(EXE_EXT): ./hexgame.c
-	cc -o $@ -Os $< -lgpc
+	cc -o $@ -Os $< -DNDEBUG
 
 debug: hexgamed$(EXE_EXT)
 ./hexgamed$(EXE_EXT): ./hexgame.c
-	cc -o $@ -ggdb3 -gdwarf -Wall -Wextra $< -lgpcd $(SANITIZERS)
+	cc -o $@ -ggdb3 -gdwarf -Wall -Wextra $< $(SANITIZERS)
 
 run: all
 	./hexgame$(EXE_EXT)
 
 install: all
-	cp ./hexgame$(EXE_EXT) /usr/local/bin/
+	cp ./hexgame$(EXE_EXT) $(INSTALL_PATH)
 
 uninstall:
-	rm -rf /usr/local/bin/hexgame$(EXE_EXT) /home/*/.hexgame
+	rm -rf $(INSTALL_PATH)hexgame$(EXE_EXT) /home/*/.hexgame
 
 clean:
 	rm -rf ./hexgame$(EXE_EXT) ./hexgamed$(EXE_EXT)

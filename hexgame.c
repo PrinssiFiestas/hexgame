@@ -1,4 +1,5 @@
-#include <gpc/gpc.h>
+#define GPC_IMPLEMENTATION
+#include "gpc.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -6,6 +7,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <time.h>
 
 typedef enum base
 {
@@ -329,6 +331,14 @@ int main(int argc, char** argv, char** envp)
     int leaderboard_fd = -1;
 
     // --------------------------------
+    #if _WIN32 // Enable ANSI Colors
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    GetConsoleMode(console, &mode);
+    SetConsoleMode(console, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    #endif
+
+    // --------------------------------
     // Create/Read Leaderboard
 
     const char* home_path = NULL;
@@ -345,6 +355,9 @@ int main(int argc, char** argv, char** envp)
     strcpy(leaderboard_path, home_path);
     strcat(leaderboard_path, "/.hexgame");
 
+    #if _WIN32
+    #define mkdir(A, ...) mkdir(A)
+    #endif
     if (access(leaderboard_path, F_OK) == -1 && mkdir(leaderboard_path, 0766) == -1)
         gp_file_println(stderr,
             "hexgame: cannot create", leaderboard_path, "for leaderboards:",
