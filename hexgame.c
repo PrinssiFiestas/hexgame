@@ -441,7 +441,7 @@ int main(int argc, char** argv, char** envp)
 
     if (new_high_scores_length > 0) {
         try_again:;
-        printf("Enter name (max %zu bytes): ", sizeof leaderboard[0][0][0]);
+        printf("Enter name (max %zu bytes): ", sizeof leaderboard[0][0][0].name);
         fflush(stdout);
         read_input("%127s", nick);
 
