@@ -1,3 +1,7 @@
+// MIT License
+// Copyright (c) 2025 Lauri Lorenzo Fiestas
+// https://github.com/PrinssiFiestas/hexgame/blob/main/LICENSE.md
+
 #define GPC_IMPLEMENTATION
 #include "gpc.h"
 #include <sys/types.h>
