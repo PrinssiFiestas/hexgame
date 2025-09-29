@@ -1,10 +1,18 @@
-# Targets
-.PHONY: all       # Build the game
+# -----------------------------------------------------------------------------
+# Public Targets
+
+.PHONY: all       # Build the game (default)
 .PHONY: run       # Build and run the game
-.PHONY: install   # Build and install the game
-.PHONY: uninstall # Remove all files from system
-.PHONY: clean     # Remove build artifacts, including the binary
+.PHONY: install   # Build and install the game (may require sudo)
+.PHONY: uninstall # Remove all hexgame files for all users (may require sudo)
+
+# -----------------------------------------------------------------------------
+# Dev Targets
+
 .PHONY: debug     # Build with debug symbols and sanitizers
+.PHONY: clean     # Remove binaries from current directory
+
+# -----------------------------------------------------------------------------
 
 ifeq ($(OS), Windows_NT)
 EXE_EXT = .exe
@@ -14,7 +22,7 @@ endif
 
 all: hexgame$(EXE_EXT)
 ./hexgame$(EXE_EXT): ./hexgame.c
-	cc -o $@ -Oz $< -lgpc
+	cc -o $@ -Os $< -lgpc
 
 debug: hexgamed$(EXE_EXT)
 ./hexgamed$(EXE_EXT): ./hexgame.c
@@ -27,7 +35,7 @@ install: all
 	cp ./hexgame$(EXE_EXT) /usr/local/bin/
 
 uninstall:
-	rm -rf /usr/local/bin/hexgame$(EXE_EXT) /etc/hexgame/
+	rm -rf /usr/local/bin/hexgame$(EXE_EXT) /home/*/.hexgame
 
 clean:
 	rm -rf ./hexgame$(EXE_EXT) ./hexgamed$(EXE_EXT)

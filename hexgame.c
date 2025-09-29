@@ -7,8 +7,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-// TODO keep testing that leaderboard works
-
 typedef enum base
 {
     BASE2,
@@ -37,7 +35,7 @@ typedef struct high_score_position
 // -----------------------------
 // ▘|▝|▀|▖|▌|▞|▛|▗|▚|▐|▜|▄|▙|▟|█
 // -----------------------------
-static const char* header = GP_MAGENTA
+static const char* header = GP_MAGENTA       "\n"
 "▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀\n"
 "█  █ █▀▀▀ ▜▖  ▗▛   ▟▛▀▀▜▙ ▟▛▀▜▙ ▙      ▟ █▀▀▀\n"
 "█  █ █     ▜▖▗▛    █      █   █ █▙    ▟█ █   \n"
@@ -46,8 +44,7 @@ static const char* header = GP_MAGENTA
 "█  █ █▄▄▄ ▟▘  ▝▙   ▜▙▄▄▄▛ █   █ █  ▝▘  █ █▄▄▄\n"
 "▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄" GP_RESET_TERMINAL "\n";
 
-// TODO change me to 30.
-#define ROUND_DURATION 1. // seconds
+#define ROUND_DURATION 30. // seconds
 
 #define LEADERBOARD_MAX_LENGTH 10
 
@@ -278,7 +275,7 @@ static void print_leaderboard(
     }
 
     puts("\n-----------------------------------------------------------------");
-    puts("    LEADERBOARD");
+    puts("    HEXGAME LEADERBOARD");
     puts("-----------------------------------------------------------------\n");
 
     for (base_t left_base = 0; left_base < BASE_LENGTH; ++left_base)
@@ -313,7 +310,7 @@ static void print_score(
 
     printf("%-*s : %*zu ", round_name_width, round_name, SCORE_FIELD_WIDTH, (size_t)score);
     if (high_score_rank) {
-        printf("top %i ", high_score_rank);
+        printf("(top %i!) ", high_score_rank);
         const char* medals[] = {"", "🥇", "🥈", "🥉"};
         if (high_score_rank <= 3)
             printf("%s", medals[high_score_rank]);
@@ -406,18 +403,23 @@ int main(int argc, char** argv, char** envp)
             if (leaderboard_length == 0)
                 new_high_scores[new_high_scores_length++] = (HighScorePosition)
                     { left_base, right_base, 0 };
-            else for (size_t i = 0; i < leaderboard_length; ++i)
-                if (scores[left_base][right_base] >= leaderboard[i][left_base][right_base].score)
+            else for (size_t i = 0; i < leaderboard_length; ++i) {
+                if (scores[left_base][right_base] >= leaderboard[i][left_base][right_base].score) {
                     new_high_scores[new_high_scores_length++] = (HighScorePosition)
                         { left_base, right_base, i };
+                    break;
+                }
+            }
         }
     }
     if (leaderboard_length == 0)
         new_high_scores[new_high_scores_length++] = (HighScorePosition){0,0,0};
-    else for (size_t i = 0; i < leaderboard_length; ++i)
-        if (scores[0][0] >= leaderboard[i][0][0].score)
+    else for (size_t i = 0; i < leaderboard_length; ++i) {
+        if (scores[0][0] >= leaderboard[i][0][0].score) {
             new_high_scores[new_high_scores_length++] = (HighScorePosition){0,0,i};
-
+            break;
+        }
+    }
     time_t timestamp = time(NULL);
 
     // --------------------------------
@@ -431,15 +433,7 @@ int main(int argc, char** argv, char** envp)
         fflush(stdout);
         read_input("%127s", nick);
 
-        if (strlen(nick) == 0) {
-            printf("Leave name empty? (type 'yes' to leave empty name): ");
-            fflush(stdout);
-            char confirmation[8] = "";
-            read_input("%4s", confirmation);
-            if (confirmation[0] != 'y' && confirmation[0] != 'Y')
-                goto try_again;
-        }
-        else if (strlen(nick) > sizeof leaderboard[0][0][0].name) {
+        if (strlen(nick) > sizeof leaderboard[0][0][0].name) {
             printf("Name too long (%zu bytes).\n", strlen(nick));
             goto try_again;
         }
@@ -489,9 +483,9 @@ int main(int argc, char** argv, char** envp)
 
     if (new_high_scores_length > 0)
         gp_println(GP_GREEN "Got", new_high_scores_length, "new high scores!" GP_RESET_TERMINAL);
-    puts("-------------------------------------");
+    puts("-------------------------------------------------");
     puts("Your Scores:");
-    puts("-------------------------------------");
+    puts("-------------------------------------------------");
     for (base_t left_base = 0; left_base < BASE_LENGTH; ++left_base)
         for (base_t right_base = 0; right_base < BASE_LENGTH; ++right_base)
             if (left_base == right_base)
@@ -502,5 +496,5 @@ int main(int argc, char** argv, char** envp)
                     left_base, right_base,
                     high_score_ranks[left_base][right_base]);
     print_score(scores[0][0], 0, 0, high_score_ranks[0][0]);
-
+    puts("");
 }
