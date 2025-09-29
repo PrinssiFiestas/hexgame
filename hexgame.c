@@ -242,13 +242,14 @@ static void print_leaderboard_entry(
     LeaderBoardEntry leaderboard[LEADERBOARD_MAX_LENGTH][BASE_LENGTH][BASE_LENGTH],
     size_t leaderboard_length,
     base_t left_base,
-    base_t right_base)
+    base_t right_base,
+    size_t round)
 {
     puts("-----------------------------------------------------------------");
     if (left_base == 0 && right_base == 0)
         printf("All Rounds Total\n");
     else
-        printf("%s to %s\n", base_titlecase[left_base], base_titlecase[right_base]);
+        printf("Round %zu: %s to %s\n", round, base_titlecase[left_base], base_titlecase[right_base]);
 
     printf("   | %-*s | %-*s | Date\n",
         (int)(sizeof leaderboard[0][0][0].name - sizeof""), "Name",
@@ -284,14 +285,15 @@ static void print_leaderboard(
     puts("    HEXGAME LEADERBOARD");
     puts("-----------------------------------------------------------------\n");
 
+    size_t round = 0;
     for (base_t left_base = 0; left_base < BASE_LENGTH; ++left_base)
         for (base_t right_base = 0; right_base < BASE_LENGTH; ++right_base)
             if (left_base == right_base)
                 continue;
             else
                 print_leaderboard_entry(
-                    leaderboard, leaderboard_length, left_base, right_base);
-    print_leaderboard_entry(leaderboard, leaderboard_length, 0, 0);
+                    leaderboard, leaderboard_length, left_base, right_base, ++round);
+    print_leaderboard_entry(leaderboard, leaderboard_length, 0, 0, 0);
 }
 
 static void print_score(
