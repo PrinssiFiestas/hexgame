@@ -417,10 +417,7 @@ int main(int argc, char** argv, char** envp)
 
             scores[0][0] += scores[left_base][right_base] = game(round, left_base, right_base);
 
-            if (leaderboard_length == 0)
-                new_high_scores[new_high_scores_length++] = (HighScorePosition)
-                    { left_base, right_base, 0 };
-            else for (size_t i = 0; i < leaderboard_length; ++i) {
+            for (size_t i = 0; i < LEADERBOARD_MAX_LENGTH; ++i) {
                 if (scores[left_base][right_base] >= leaderboard[i][left_base][right_base].score) {
                     new_high_scores[new_high_scores_length++] = (HighScorePosition)
                         { left_base, right_base, i };
@@ -429,9 +426,7 @@ int main(int argc, char** argv, char** envp)
             }
         }
     }
-    if (leaderboard_length == 0)
-        new_high_scores[new_high_scores_length++] = (HighScorePosition){0,0,0};
-    else for (size_t i = 0; i < leaderboard_length; ++i) {
+    for (size_t i = 0; i < LEADERBOARD_MAX_LENGTH; ++i) {
         if (scores[0][0] >= leaderboard[i][0][0].score) {
             new_high_scores[new_high_scores_length++] = (HighScorePosition){0,0,i};
             break;
